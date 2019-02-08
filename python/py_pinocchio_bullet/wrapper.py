@@ -6,13 +6,14 @@ from time import sleep
 from pinocchio.utils import zero
 
 class PinBulletWrapper(object):
-    def __init__(self, robot_id, pinocchio_robot, joint_names, endeff_names):
+    def __init__(self, robot_id, pinocchio_robot, joint_names, endeff_names, useFixedBase=False):
         self.nq = pinocchio_robot.nq
         self.nv = pinocchio_robot.nv
         self.nj = len(joint_names)
         self.nf = len(endeff_names)
         self.robot_id = robot_id
         self.pinocchio_robot = pinocchio_robot
+        self.useFixedBase = useFixedBase
 
         self.joint_names = joint_names
         self.endeff_names = endeff_names
@@ -25,8 +26,13 @@ class PinBulletWrapper(object):
         self.pinocchio_joint_ids = np.array([pinocchio_robot.model.getJointId(name) for name in joint_names])
 
         self.pin2bullet_joint_only_array = []
-        for i in range(2, self.nj + 2):
-            self.pin2bullet_joint_only_array.append(np.where(self.pinocchio_joint_ids == i)[0][0])
+
+        if not self.useFixedBase:
+            for i in range(2, self.nj + 2):
+                self.pin2bullet_joint_only_array.append(np.where(self.pinocchio_joint_ids == i)[0][0])
+        else:
+            for i in range(1, self.nj + 1):
+                self.pin2bullet_joint_only_array.append(np.where(self.pinocchio_joint_ids == i)[0][0])
 
 
         # Disable the velocity control on the joints as we use torque control.
@@ -93,44 +99,61 @@ class PinBulletWrapper(object):
         q = zero(self.nq)
         dq = zero(self.nv)
 
-        pos, orn = p.getBasePositionAndOrientation(self.robot_id)
-        q[:3, 0] = np.array(pos).reshape(3, 1)
-        q[3:7, 0] = np.array(orn).reshape(4, 1)
+        if not self.useFixedBase:
+            pos, orn = p.getBasePositionAndOrientation(self.robot_id)
+            q[:3, 0] = np.array(pos).reshape(3, 1)
+            q[3:7, 0] = np.array(orn).reshape(4, 1)
 
-        vel, orn = p.getBaseVelocity(self.robot_id)
-        dq[:3, 0] = np.array(vel).reshape(3, 1)
-        dq[3:6, 0] = np.array(orn).reshape(3, 1)
+            vel, orn = p.getBaseVelocity(self.robot_id)
+            dq[:3, 0] = np.array(vel).reshape(3, 1)
+            dq[3:6, 0] = np.array(orn).reshape(3, 1)
 
-        # Pinocchio assumes the base velocity to be in the body frame -> rotate.
-        rot = np.matrix(p.getMatrixFromQuaternion(q[3:7])).reshape((3, 3))
-        dq[0:3] = rot.T.dot(dq[0:3])
-        dq[3:6] = rot.T.dot(dq[3:6])
+            # Pinocchio assumes the base velocity to be in the body frame -> rotate.
+            rot = np.matrix(p.getMatrixFromQuaternion(q[3:7])).reshape((3, 3))
+            dq[0:3] = rot.T.dot(dq[0:3])
+            dq[3:6] = rot.T.dot(dq[3:6])
 
         # Query the joint readings.
         joint_states = p.getJointStates(self.robot_id, self.bullet_joint_ids)
 
-        for i in range(self.nj):
-            q[5 + self.pinocchio_joint_ids[i], 0] = joint_states[i][0]
-            dq[4 + self.pinocchio_joint_ids[i], 0] = joint_states[i][1]
+        if not self.useFixedBase:
+            for i in range(self.nj):
+                q[5 + self.pinocchio_joint_ids[i], 0] = joint_states[i][0]
+                dq[4 + self.pinocchio_joint_ids[i], 0] = joint_states[i][1]
+        else:
+            for i in range(self.nj):
+                q[self.pinocchio_joint_ids[i] - 1, 0] = joint_states[i][0]
+                dq[self.pinocchio_joint_ids[i] - 1, 0] = joint_states[i][1]
 
         return q, dq
 
     def reset_state(self, q, dq):
         vec2list = lambda m: np.array(m.T).reshape(-1).tolist()
-        p.resetBasePositionAndOrientation(self.robot_id, vec2list(q[:3]), vec2list(q[3:7]))
 
-        # Pybullet assumes the base velocity to be aligned with the world frame.
-        rot = np.matrix(p.getMatrixFromQuaternion(q[3:7])).reshape((3, 3))
-        p.resetBaseVelocity(self.robot_id, vec2list(rot.dot(dq[:3])), vec2list(rot.dot(dq[3:6])))
+        if not self.useFixedBase:
+            p.resetBasePositionAndOrientation(self.robot_id, vec2list(q[:3]), vec2list(q[3:7]))
 
-        for i, bullet_joint_id in enumerate(self.bullet_joint_ids):
-            p.resetJointState(self.robot_id, bullet_joint_id,
-                q[5 + self.pinocchio_joint_ids[i]],
-                dq[4 + self.pinocchio_joint_ids[i]])
+            # Pybullet assumes the base velocity to be aligned with the world frame.
+            rot = np.matrix(p.getMatrixFromQuaternion(q[3:7])).reshape((3, 3))
+            p.resetBaseVelocity(self.robot_id, vec2list(rot.dot(dq[:3])), vec2list(rot.dot(dq[3:6])))
+
+            for i, bullet_joint_id in enumerate(self.bullet_joint_ids):
+                p.resetJointState(self.robot_id, bullet_joint_id,
+                    q[5 + self.pinocchio_joint_ids[i]],
+                    dq[4 + self.pinocchio_joint_ids[i]])
+        else:
+            for i, bullet_joint_id in enumerate(self.bullet_joint_ids):
+                p.resetJointState(self.robot_id, bullet_joint_id,
+                    q[self.pinocchio_joint_ids[i] - 1],
+                    dq[self.pinocchio_joint_ids[i] - 1])
+
 
     def send_joint_command(self, tau):
         # TODO: Apply the torques on the base towards the simulator as well.
-        assert(tau.shape[0] == self.nv - 6)
+        if not self.useFixedBase:
+            assert(tau.shape[0] == self.nv - 6)
+        else:
+            assert(tau.shape[0] == self.nv)
 
         zeroGains = tau.shape[0] * (0.,)
 
