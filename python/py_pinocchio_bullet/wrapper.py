@@ -160,3 +160,10 @@ class PinBulletWrapper(object):
         p.setJointMotorControlArray(self.robot_id, self.bullet_joint_ids, p.TORQUE_CONTROL,
                 forces=tau[self.pin2bullet_joint_only_array],
                 positionGains=zeroGains, velocityGains=zeroGains)
+
+    def get_joint_torque(self):
+        zeroGains = tau.shape[0] * (0.,)
+
+        p.setJointMotorControlArray(self.robot_id, self.bullet_joint_ids, p.TORQUE_CONTROL,
+                forces=tau[self.pin2bullet_joint_only_array],
+                positionGains=zeroGains, velocityGains=zeroGains)
