@@ -22,7 +22,7 @@ from py_pinocchio_bullet.wrapper import PinBulletWrapper
 class QuadrupedRobot(PinBulletWrapper):
     def __init__(self, physicsClient=None):
         if physicsClient is None:
-            self.physicsClient = p.connect(p.GUI)
+            self.physicsClient = p.connect(p.DIRECT)
             p.setGravity(0,0, -9.81)
             p.setPhysicsEngineParameter(fixedTimeStep=1.0/1000.0, numSubSteps=1)
 
@@ -88,6 +88,10 @@ if __name__ == "__main__":
     for i in range(2000):
         # Get the current state (position and velocity)
         q, dq = quad.get_state()
+        active_contact_frames, contact_forces = quad.get_force()
+
+        if i % 100 == 0:
+            print('Forces:', active_contact_frames, contact_forces)
 
         # Compute the command torques at the joints. The torque
         # vector only takes the actuated joints (excluding the base)
