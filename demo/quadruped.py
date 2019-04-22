@@ -10,8 +10,8 @@ import rospkg
 import numpy as np
 import time
 
-import py_robot_properties_quadruped
-from py_robot_properties_quadruped.config import QuadrupedConfig
+import robot_properties_solo
+from robot_properties_solo.config import SoloConfig
 
 import pybullet as p
 import pinocchio as se3
@@ -27,7 +27,7 @@ class QuadrupedRobot(PinBulletWrapper):
             p.setPhysicsEngineParameter(fixedTimeStep=1.0/1000.0, numSubSteps=1)
 
         # Load the plain.
-        plain_urdf = (rospkg.RosPack().get_path("robot_properties_quadruped") +
+        plain_urdf = (rospkg.RosPack().get_path("robot_properties_solo") +
                       "/urdf/plane_with_restitution.urdf")
         self.planeId = p.loadURDF(plain_urdf)
 
@@ -35,7 +35,7 @@ class QuadrupedRobot(PinBulletWrapper):
         robotStartPos = [0.,0,0.40]
         robotStartOrientation = p.getQuaternionFromEuler([0,0,0])
 
-        self.urdf_path = QuadrupedConfig.urdf_path
+        self.urdf_path = SoloConfig.urdf_path
         self.robotId = p.loadURDF(self.urdf_path, robotStartPos,
             robotStartOrientation, flags=p.URDF_USE_INERTIA_FROM_FILE,
             useFixedBase=False)
@@ -43,7 +43,7 @@ class QuadrupedRobot(PinBulletWrapper):
 
         # Create the robot wrapper in pinocchio.
         package_dirs = [os.path.dirname(os.path.dirname(self.urdf_path)) + '/urdf']
-        self.pin_robot = QuadrupedConfig.buildRobotWrapper()
+        self.pin_robot = SoloConfig.buildRobotWrapper()
 
         # Query all the joints.
         num_joints = p.getNumJoints(self.robotId)
@@ -61,7 +61,7 @@ class QuadrupedRobot(PinBulletWrapper):
         # Creates the wrapper by calling the super.__init__.
         super(QuadrupedRobot,self).__init__(self.robotId, self.pin_robot,
             controlled_joints,
-            ['HL_END', 'HR_END', 'FL_END', 'FR_END']
+            ['FL_ANKLE', 'FR_ANKLE', 'HL_ANKLE', 'HR_ANKLE']
         )
 
 if __name__ == "__main__":
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     q[11] = q[13] = -0.8
     q[8] = q[10] = -1.6
     q[12] = q[14] = 1.6
-    
+
     # Take the initial joint states as desired state.
     q_des = q[7:].copy()
 
