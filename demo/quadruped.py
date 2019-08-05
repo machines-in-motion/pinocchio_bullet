@@ -1,7 +1,12 @@
-# Author: Julian Viereck
-# Date: 12 March 2019
-#
-# \brief Example for using the PinBulletWrapper for a quadruped robot.
+#///////////////////////////////////////////////////////////////////////////////
+#// BSD 3-Clause License
+#//
+#// Copyright (C) 2018-2019, New York University , Max Planck Gesellschaft
+#// Copyright note valid unless otherwise stated in individual files.
+#// All rights reserved.
+#///////////////////////////////////////////////////////////////////////////////
+
+# brief Example for using the PinBulletWrapper for a quadruped robot.
 
 from __future__ import print_function
 
