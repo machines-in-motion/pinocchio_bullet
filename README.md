@@ -6,8 +6,8 @@ The code provided in this repo simplifies the interaction between pinocchio and 
 
 ## Authors
 
-Julian Viereck
-Maximilien Naveau
+- Julian Viereck
+- Maximilien Naveau
 
 ## Copyrights
 
