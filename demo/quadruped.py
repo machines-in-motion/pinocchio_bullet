@@ -95,6 +95,12 @@ if __name__ == "__main__":
         q, dq = quad.get_state()
         active_contact_frames, contact_forces = quad.get_force()
 
+        # Alternative, if you want to use properties from the pinocchio robot
+        # like the jacobian or similar, you can also get the state and update
+        # the pinocchio internals with one call:
+        #
+        #  q, dq = quad.get_state_update_pinocchio()
+
         if i % 100 == 0:
             print('Forces:', active_contact_frames, contact_forces)
 

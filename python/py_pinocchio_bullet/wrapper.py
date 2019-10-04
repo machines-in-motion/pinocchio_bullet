@@ -135,6 +135,33 @@ class PinBulletWrapper(object):
 
         return q, dq
 
+    def update_pinocchio(self, q, dq):
+        """Updates the pinocchio robot.
+
+        This includes updating:
+        - kinematics
+        - joint and frame jacobian
+        - centroidal momentum
+
+        Args:
+          q: Pinocchio generalized position vector.
+          dq: Pinocchio generalize velocity vector.
+        """
+        self.pinocchio_robot.forwardKinematics(q, dq)
+        self.pinocchio_robot.computeJointJacobians(q)
+        self.pinocchio_robot.framesForwardKinematics(q)
+        self.pinocchio_robot.centroidalMomentum(q, dq)
+
+    def get_state_update_pinocchio(self):
+        """Get state from pybullet and update pinocchio robot internals.
+
+        This gets the state from the pybullet simulator and forwards
+        the kinematics, jacobians, centroidal moments on the pinocchio robot
+        (see forward_pinocchio for details on computed quantities). """
+        q, dq = self.get_state()
+        self.update_pinocchio(q, dq)
+        return q, dq
+
     def reset_state(self, q, dq):
         vec2list = lambda m: np.array(m.T).reshape(-1).tolist()
 
