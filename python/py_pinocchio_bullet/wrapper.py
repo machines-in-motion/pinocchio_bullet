@@ -139,14 +139,15 @@ class PinBulletWrapper(object):
         """Updates the pinocchio robot.
 
         This includes updating:
-        - kinematics,
-        - frame jacobians
+        - kinematics
+        - joint and frame jacobian
         - centroidal momentum
 
         Args:
-          q: Pinocchio generalized position vector.
+          q: Pinocchio generalized position vect.
           dq: Pinocchio generalize velocity vector.
         """
+        self.pinocchio_robot.computeJointJacobians(q)
         self.pinocchio_robot.framesForwardKinematics(q)
         self.pinocchio_robot.centroidalMomentum(q, dq)
 
