@@ -144,10 +144,9 @@ class PinBulletWrapper(object):
         - centroidal momentum
 
         Args:
-          q: Pinocchio generalized position vector.
+          q: Pinocchio generalized position vect.
           dq: Pinocchio generalize velocity vector.
         """
-        self.pinocchio_robot.forwardKinematics(q, dq)
         self.pinocchio_robot.computeJointJacobians(q)
         self.pinocchio_robot.framesForwardKinematics(q)
         self.pinocchio_robot.centroidalMomentum(q, dq)
