@@ -102,6 +102,15 @@ class PinBulletWrapper(object):
 
         return active_contacts_frame_ids[::-1], contact_forces[::-1]
 
+    def get_base_velocity_world(self):
+        """ Returns the velocity of the base in the world frame.
+
+        Returns:
+            np.array((6,1)) with the translation and angular velocity
+        """
+        vel, orn = p.getBaseVelocity(self.robot_id)
+        return np.array(vel + orn).reshape(6, 1)
+
     def get_state(self):
         # Returns a pinocchio like representation of the q, dq matrixes
         q = zero(self.nq)
