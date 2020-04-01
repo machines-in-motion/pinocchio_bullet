@@ -118,15 +118,15 @@ class PinBulletWrapper(object):
 
         if not self.useFixedBase:
             pos, orn = p.getBasePositionAndOrientation(self.robot_id)
-            q[:3, 0] = np.array(pos).reshape(3, 1)
-            q[3:7, 0] = np.array(orn).reshape(4, 1)
+            q[:3] = pos
+            q[3:7] = orn
 
             vel, orn = p.getBaseVelocity(self.robot_id)
-            dq[:3, 0] = np.array(vel).reshape(3, 1)
-            dq[3:6, 0] = np.array(orn).reshape(3, 1)
+            dq[:3] = vel
+            dq[3:6] = orn
 
             # Pinocchio assumes the base velocity to be in the body frame -> rotate.
-            rot = np.matrix(p.getMatrixFromQuaternion(q[3:7])).reshape((3, 3))
+            rot = np.array(p.getMatrixFromQuaternion(q[3:7])).reshape((3, 3))
             dq[0:3] = rot.T.dot(dq[0:3])
             dq[3:6] = rot.T.dot(dq[3:6])
 
@@ -135,12 +135,12 @@ class PinBulletWrapper(object):
 
         if not self.useFixedBase:
             for i in range(self.nj):
-                q[5 + self.pinocchio_joint_ids[i], 0] = joint_states[i][0]
-                dq[4 + self.pinocchio_joint_ids[i], 0] = joint_states[i][1]
+                q[5 + self.pinocchio_joint_ids[i]] = joint_states[i][0]
+                dq[4 + self.pinocchio_joint_ids[i]] = joint_states[i][1]
         else:
             for i in range(self.nj):
-                q[self.pinocchio_joint_ids[i] - 1, 0] = joint_states[i][0]
-                dq[self.pinocchio_joint_ids[i] - 1, 0] = joint_states[i][1]
+                q[self.pinocchio_joint_ids[i] - 1] = joint_states[i][0]
+                dq[self.pinocchio_joint_ids[i] - 1] = joint_states[i][1]
 
         return q, dq
 
@@ -177,7 +177,7 @@ class PinBulletWrapper(object):
             p.resetBasePositionAndOrientation(self.robot_id, vec2list(q[:3]), vec2list(q[3:7]))
 
             # Pybullet assumes the base velocity to be aligned with the world frame.
-            rot = np.matrix(p.getMatrixFromQuaternion(q[3:7])).reshape((3, 3))
+            rot = np.array(p.getMatrixFromQuaternion(q[3:7])).reshape((3, 3))
             p.resetBaseVelocity(self.robot_id, vec2list(rot.dot(dq[:3])), vec2list(rot.dot(dq[3:6])))
 
             for i, bullet_joint_id in enumerate(self.bullet_joint_ids):
