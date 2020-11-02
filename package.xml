@@ -1,16 +1,32 @@
 <?xml version="1.0"?>
-<package>
-  <name>pinocchio_bullet</name>
-  <version>1.0.0</version>
-  <description>pinocchio_bullet</description>
-  <author email="jviereck@tuebingen.mpg.de">Julian Viereck</author>
-  <maintainer email="jviereck@tuebingen.mpg.de">Julian Viereck</maintainer>
-  <license>TODO</license>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+    
+    <name>pinocchio_bullet</name>
+    
+    <version>1.0.0</version>
+    
+    <description>
+        Wrapper around the pybullet interface using pinocchio.
+    </description>
+    
+    <author email="jviereck@tue.mpg.de">Julian Viereck</author>
+    <maintainer email="jviereck@tue.mpg.de">Julian Viereck</maintainer>
+    <maintainer email="mnaveau@tue.mpg.de">Maximilien Naveau</maintainer>
+    
+    <license>BSD-3-clause</license>
 
-  <buildtool_depend>catkin</buildtool_depend>
+    <buildtool_depend>ament_python</buildtool_depend>
 
-  <build_depend>mpi_cmake_modules</build_depend>
+    <depend>pybullet</depend>
+    <depend>pinocchio</depend>
 
-  <export>
-  </export>
+    <test_depend>ament_copyright</test_depend>
+    <test_depend>ament_flake8</test_depend>
+    <test_depend>ament_pep257</test_depend>
+    <test_depend>python3-pytest</test_depend>
+
+    <export>
+        <build_type>ament_python</build_type>
+    </export>
 </package>
