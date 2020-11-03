@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 old_package_name = "py_pinocchio_bullet"
 package_name = "pinocchio_bullet"
 
-with open("README.md", "r") as fh:
+with open("readme.md", "r") as fh:
     long_description = fh.read()
 
 setup(
