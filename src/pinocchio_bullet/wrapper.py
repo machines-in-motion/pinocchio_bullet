@@ -1,16 +1,17 @@
-# ///////////////////////////////////////////////////////////////////////////////
-# // BSD 3-Clause License
-# //
-# // Copyright (C) 2018-2019, New York University , Max Planck Gesellschaft
-# // Copyright note valid unless otherwise stated in individual files.
-# // All rights reserved.
-# ///////////////////////////////////////////////////////////////////////////////
+"""wrapper
+
+License: BSD 3-Clause License
+Copyright (C) 2018-2019, New York University , Max Planck Gesellschaft
+Copyright note valid unless otherwise stated in individual files.
+All rights reserved.
+
+Pybullet interface using pinocchio's convention.
+"""
 
 import pybullet
 import pinocchio
 import numpy as np
 from time import sleep
-
 from pinocchio.utils import zero
 
 
@@ -236,6 +237,10 @@ class PinBulletWrapper(object):
             positionGains=zeroGains,
             velocityGains=zeroGains,
         )
+
+    def step_simulation(self):
+        """ Step the simulation forward. """
+        pybullet.stepSimulation()
 
     def _action(self, pos, rot):
         res = np.zeros((6, 6))
