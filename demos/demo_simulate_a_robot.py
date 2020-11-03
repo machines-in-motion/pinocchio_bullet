@@ -1,12 +1,15 @@
-# ///////////////////////////////////////////////////////////////////////////////
-# // BSD 3-Clause License
-# //
-# // Copyright (C) 2018-2019, New York University , Max Planck Gesellschaft
-# // Copyright note valid unless otherwise stated in individual files.
-# // All rights reserved.
-# ///////////////////////////////////////////////////////////////////////////////
+#!/usr/bin/env python
 
-# brief Example for using the PinBulletWrapper for a quadruped robot.
+"""simulate_a_robot
+
+Example for using the PinBulletWrapper for a quadruped robot.
+
+license: BSD 3-Clause License
+copyrights: Copyright (C) 2018-2019, New York University , Max Planck Gesellschaft
+Copyright note valid unless otherwise stated in individual files.
+All rights reserved.
+
+"""
 
 from __future__ import print_function
 
@@ -71,7 +74,6 @@ class RobotSimulator(PinBulletWrapper):
 
         # Query all the joints.
         self.num_joints = pybullet.getNumJoints(self.robot_id)
-        print(self.pinocchio_robot.nv - 6, self.num_joints)
 
         for ji in range(self.num_joints):
             pybullet.changeDynamics(
@@ -128,7 +130,7 @@ if __name__ == "__main__":
 
         # Compute the command torques at the joints. The torque
         # vector only takes the actuated joints (excluding the base)
-        tau = pinocchio.utils.zero(robot.num_joints)
+        tau = np.zeros(robot.pinocchio_robot.nv - 6)
 
         # Send the commands to the robot.
         robot.send_joint_command(tau)
