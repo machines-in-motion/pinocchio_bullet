@@ -28,6 +28,7 @@ class PinBulletWrapper(object):
         self.robot_id = robot_id
         self.pinocchio_robot = pinocchio_robot
         self.useFixedBase = useFixedBase
+        self.nb_dof = self.nv - 6
 
         self.joint_names = joint_names
         self.endeff_names = endeff_names
