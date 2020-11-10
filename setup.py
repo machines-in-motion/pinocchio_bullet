@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 
 from os import path
+import sys
 from setuptools import setup, find_packages
+
+def print_error(*args, **kwargs):
+    """ Print in stderr. """
+    print(*args, file=sys.stderr, **kwargs)
 
 old_package_name = "py_pinocchio_bullet"
 package_name = "pinocchio_bullet"
